@@ -41,6 +41,19 @@ describe('2-D exact lattice',()=>{
   expect(result.candidates.length).toBeGreaterThan(1);
   expect(result.reason).toMatch(/Uniqueness failed/);
  });
+ it('agrees with exhaustive hidden-state enumeration at q=2^40',()=>{
+  const p={q:1n<<40n,w:1n<<15n,a:812375817537n,b:74593n};
+  for(let i=0;i<20;i++){
+    const state=(9876543210n+BigInt(i)*48271n)%p.q;
+    const r0=output(state,p),r1=output(advance(state,p),p);
+    const exhaustive:bigint[]=[];
+    for(let e=0n;e<p.w;e++){
+      const guess=r0*p.w+e;
+      if(output(advance(guess,p),p)===r1)exhaustive.push(guess);
+    }
+    expect(recoverLcg(r0,r1,p).candidates.map(String).sort()).toEqual(exhaustive.map(String).sort());
+  }
+ });
 });
 describe('ChaCha20 control',()=>{
  it('matches RFC 8439 §2.3.2 block 1',()=>{
@@ -48,5 +61,18 @@ describe('ChaCha20 control',()=>{
   const result=chachaBytes(key,nonce,128);
   // The API's counter starts at 0; RFC's block at counter 1 occurs second.
   expect(Buffer.from(result.slice(64,80)).toString('hex')).toBe('10f1e7e4d13b5915500fdd1fa32071c4');
+ });
+ it('matches RFC 8439 §2.4.2 across the two ciphertext blocks',()=>{
+  const key=Uint8Array.from({length:32},(_,i)=>i);
+  const nonce=Uint8Array.from([0,0,0,0,0,0,0,0x4a,0,0,0,0]);
+  const plain=new TextEncoder().encode("Ladies and Gentlemen of the class of '99: If I could offer you only one tip for the future, sunscreen would be it.");
+  expect(plain).toHaveLength(114);
+  const stream=chachaBytes(key,nonce,64+plain.length).slice(64);
+  const ciphertext=Uint8Array.from(plain,(byte,i)=>byte^stream[i]);
+  expect(Buffer.from(ciphertext).toString('hex')).toBe(
+   '6e2e359a2568f98041ba0728dd0d6981e97e7aec1d4360c20a27afccfd9fae0b'+
+   'f91b65c5524733ab8f593dabcd62b3571639d624e65152ab8f530c359f0861d8'+
+   '07ca0dbf500d6a6156a38e088a22b65e52bc514d16ccf806818ce91ab7793736'+
+   '5af90bbf74a35be6b40b8eedf2785e42874d');
  });
 });

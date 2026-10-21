@@ -49,7 +49,7 @@ npm run test:a11y
 npm run test:mutations
 ```
 
-5 unit tests with pinned OpenJDK 21 nextInt/nextDouble sequences, a Java state recovery, a 40-bit lattice instance, and RFC 8439 ChaCha20 block output; browser claims rederive the displayed prediction. The replayable mutation harness contains 4 concrete source patches. Each run first passes its named baseline test, requires a non-empty diff, a successful build and changed JavaScript bundle hash, then requires the owning test to fail and restores the original hash. The Playwright suite scans reachable desktop and mobile states for WCAG 2.1 A/AA issues and independently rederives displayed claims. GitHub Actions runs unit tests, production build and browser gate before deploying; it also gates Dependabot pull requests, groups minor/patch npm updates and dispatches a deploy after an automated merge.
+9 unit tests with pinned OpenJDK 21 nextInt/nextDouble sequences, a Java state recovery, 40-bit lattice instances cross-checked against exhaustive enumeration, and RFC 8439 ChaCha20 block and two-block ciphertext output; browser claims rederive the displayed prediction. The replayable mutation harness contains 4 concrete source patches. Each run first passes its named baseline test, requires a non-empty diff, a successful build and changed JavaScript bundle hash, then requires the owning test to fail and restores the original hash. The Playwright suite scans reachable desktop and mobile states for WCAG 2.1 A/AA issues and independently rederives displayed claims. GitHub Actions runs unit tests, production build and browser gate before deploying; it also gates Dependabot pull requests, groups minor/patch npm updates and dispatches a deploy after an automated merge.
 
 ## Performance
 
