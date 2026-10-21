@@ -35,6 +35,12 @@ describe('2-D exact lattice',()=>{
   expect(recoverLcg(observations[0],observations[1],{...p,a:1n}).candidates.length).toBeGreaterThanOrEqual(0);
   expect(()=>recoverLcg(observations[0],observations[1],{...p,a:2n})).toThrow();
  });
+ it('refuses a=1 when more than one state satisfies both outputs',()=>{
+  const p={q:1n<<40n,w:1n<<15n,a:1n,b:7n},s=9876543210n;
+  const result=recoverLcg(output(s,p),output(advance(s,p),p),p);
+  expect(result.candidates.length).toBeGreaterThan(1);
+  expect(result.reason).toMatch(/Uniqueness failed/);
+ });
 });
 describe('ChaCha20 control',()=>{
  it('matches RFC 8439 §2.3.2 block 1',()=>{

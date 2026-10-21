@@ -1,0 +1,31 @@
+[
+  {
+    "name": "Java next shift off by one",
+    "file": "src/gen/javaRandom.ts",
+    "from": "this.state>>BigInt(48-bits)",
+    "to": "this.state>>BigInt(47-bits)",
+    "test": "reproduces the pinned sequences"
+  },
+  {
+    "name": "nextDouble halves swapped",
+    "file": "src/gen/javaRandom.ts",
+    "from": "(this.next(26)<<27n)+this.next(27)",
+    "to": "(this.next(27)<<26n)+this.next(26)",
+    "test": "reproduces the pinned sequences"
+  },
+  {
+    "name": "lattice ambiguity accepts first candidate",
+    "file": "src/attack/lattice2d.ts",
+    "from": "return {candidates:unique,reason:",
+    "to": "return {candidates:unique.slice(0,1),reason:",
+    "test": "refuses a=1 when more than one state"
+  },
+  {
+    "name": "advantage loses half-rate subtraction",
+    "file": "src/game/nextBit.ts",
+    "from": "advantage:Math.abs(wins/n-.5)",
+    "to": "advantage:wins/n",
+    "test": "rendered Java state reproduces",
+    "browser": true
+  }
+]
