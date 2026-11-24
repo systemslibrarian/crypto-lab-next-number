@@ -37,3 +37,28 @@ test('512-bit lattice predictions reproduce the rendered independent continuatio
  const future=Array.from({length:5},()=>{state=(a*state+b)%q;return state/w});
  expect(m![6].split(', ').map(BigInt)).toEqual(future);
 });
+
+test('chance-rate interpretation follows the displayed interval for the same generator', async ({ page }) => {
+  await page.addInitScript(() => {
+    class SampleWorker {
+      onmessage: ((event: MessageEvent) => void) | null = null;
+      postMessage() {
+        const sample = JSON.parse(document.documentElement.dataset.sample!);
+        queueMicrotask(() => this.onmessage?.(new MessageEvent('message', { data: { result: sample } })));
+      }
+      terminate() {}
+    }
+    Object.defineProperty(window, 'Worker', { value: SampleWorker });
+  });
+  await page.goto('./');
+  await page.locator('#game-kind').selectOption('chacha');
+  for (const [wins, low, high, wording] of [
+    [70, .60, .78, 'above'], [30, .22, .40, 'below'], [50, .40, .60, 'includes']
+  ] as const) {
+    await page.evaluate(sample => { document.documentElement.dataset.sample = JSON.stringify(sample); },
+      { wins, trials: 100, low, high, unresolved: 0, advantage: Math.abs(wins / 100 - .5) });
+    await page.locator('#game-run').click();
+    await expect(page.locator('#game-out')).toContainText(wording);
+    await expect(page.locator('#game-out')).toContainText('50% chance rate');
+  }
+});
